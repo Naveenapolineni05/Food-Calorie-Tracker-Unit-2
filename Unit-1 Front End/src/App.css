@@ -1,0 +1,18 @@
+.about-background {
+  min-height: 100vh;
+  background-image: url("https://images.creativemarket.com/0.1.0/ps/8436213/1820/1214/m1/fpnw/wm1/smfymzyylfogh31jhumnxl4pyitf4kfwofnxxljcwv6jy3wfmepfup0jakedtfgq-.jpg?1590762544&s=abe9505c29be6863aef667707d2ef3f3");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.about-content {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  padding: 2rem;
+}
