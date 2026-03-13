@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import NavBar from "./NavBar";
 import CustomizedProgressBar from "./CustomizedProgressBar";
 import TextField from '@mui/material/TextField';
 import Stack from "@mui/material/Stack";
+import { DataContext } from "../context/DataContext";
+
+
 
 function Home(props) {
-    const { goal, meal } = props;
+    const { dailyGoal, meal } = useContext(DataContext);
     const mealOptions = ["BreakFast", "Lunch", "Snacks", "Dinner"];
 
     const totalCalories = () => {
@@ -18,22 +21,23 @@ function Home(props) {
     }
 
     return (
-        <Stack spacing={2} alignItems="strech">
+        <Stack spacing={2} alignItems="stretch">
             <NavBar />
             <h2> Daily Summary </h2>
-            <CustomizedProgressBar goal={goal} dailyCalories={totalCalories()} />
-            <Stack spacing={2} alignItems="strech">
+            <CustomizedProgressBar goal={dailyGoal} caloriesConsumed={totalCalories()} />
+            <Stack spacing={2} alignItems="stretch">
                 {mealOptions.map(mealOption =>
                     <div key={mealOption}>
                         <TextField
                             id={mealOption}
                             label={mealOption}
                             fullWidth
-                            defaultValue={meal[mealOption.toLowerCase()]}
-                            slotProps={{
-                                input: {
-                                    readOnly: true,
-                                },
+                            value={meal[mealOption.toLowerCase()] ?? ""}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                            InputLabelProps={{
+                                shrink: true,
                             }}
                         />
                     </div>

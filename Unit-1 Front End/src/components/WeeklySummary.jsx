@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
+import { DataContext } from '../context/DataContext';
 
 export default function WeeklySummary(props) {
-    const { dataset } = props;
-    const filteredDataSet = dataset.filter(d => d.day);
+    const { weeklyMeals, fetchWeeklyUserMeals } = useContext(DataContext);
+
+    useEffect(() => {
+        fetchWeeklyUserMeals();
+    }, []);
+
+    const filteredDataSet = weeklyMeals.filter(d => d.day);
     // Dummy data: one object per day of week
     const dataset1 = [
         { day: 'Mon', breakfast: 300, lunch: 600, snacks: 150, dinner: 550 },
@@ -17,7 +23,7 @@ export default function WeeklySummary(props) {
 
     return (
         <BarChart
-            dataset={filteredDataSet}
+            dataset={filteredDataSet.length > 0 ? filteredDataSet : dataset1}
             xAxis={[{ dataKey: 'day', label: 'Day of Week' }]}
             series={[
                 { dataKey: 'breakfast', label: 'Breakfast', stack: 'meals', valueFormatter: (v) => (v && !isNaN(v) ? `${v} kcal` : '0 kcal') },

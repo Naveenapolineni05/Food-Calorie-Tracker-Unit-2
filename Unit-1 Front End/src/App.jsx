@@ -25,11 +25,6 @@ function App() {
         }
     }, [meal]);
 
-    const resetData = () => {
-        setCalorieGoal(2000);
-        setMeal({});
-        setDataSet([]);
-    }
 
     return (
         <div>
@@ -38,8 +33,8 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home goal={calorieGoal} meal={meal} />} />
                 <Route path="/edit" element={<AddEditMeal mealTypes={mealOptions} setMeal={setMeal} meal={meal} />} />
-                <Route path="/progress" element={<Progress dataSet={dataSet} goal={calorieGoal} meal={meal} />} />
-                <Route path="/settings" element={<Settings updateCalorieGoal={setCalorieGoal} calorieGoal={calorieGoal} resetData={resetData} />} />
+                <Route path="/progress" element={<Progress />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="/about" element={<About />} />
             </Routes>
         </div>

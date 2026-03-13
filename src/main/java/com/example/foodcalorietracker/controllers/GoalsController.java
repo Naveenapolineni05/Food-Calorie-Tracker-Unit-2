@@ -1,42 +1,58 @@
 package com.example.foodcalorietracker.controllers;
 import com.example.foodcalorietracker.models.Goals;
+import com.example.foodcalorietracker.models.Users;
 import com.example.foodcalorietracker.repositories.GoalsRepository;
+import com.example.foodcalorietracker.repositories.UsersRepository;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/goals")
+@RequestMapping("/users/{userId}/goals")
 public class GoalsController {
     private final GoalsRepository goalsRepository;
+    private final UsersRepository usersRepository;
 
-    public GoalsController(GoalsRepository goalsRepository) {
+    public GoalsController(GoalsRepository goalsRepository, UsersRepository usersRepository) {
         this.goalsRepository = goalsRepository;
+        this.usersRepository = usersRepository;
     }
 
     @GetMapping("")
-    public List<Goals> getAllItems() {
-        return goalsRepository.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Goals getItem(@PathVariable int id) {
-        return goalsRepository.findById(id).orElse(null);
+    public Goals getItem(@PathVariable int userId) {
+        Users user = usersRepository.findById(userId).orElse(null);
+        if (user == null) return null;
+        return user.getGoals();
     }
 
     @PostMapping("")
-    public Goals addItem(@RequestBody Goals goals){
+    public Goals addItem(@PathVariable int userId, @RequestBody Goals goals){
+        Users user = usersRepository.findById(userId).orElse(null);
+        if (user == null) return null;
+        goals.setUser(user);
         return goalsRepository.save(goals);
     }
 
-    @PutMapping("/{id}")
-    public Goals updateItem(@PathVariable int id, @RequestBody Goals goals){
-        goals.setId(id);
-        return goalsRepository.save(goals);
+    @PutMapping("")
+    public Goals updateItem(@PathVariable int userId, @RequestBody Goals goals){
+        Users user = usersRepository.findById(userId).orElse(null);
+        if (user == null) return null;
+        Goals existingGoal = user.getGoals();
+        if (existingGoal != null) {
+            existingGoal.setDailyGoal(goals.getDailyGoal());
+            existingGoal.setWeeklyGoal(goals.getWeeklyGoal());
+            return goalsRepository.save(existingGoal);
+        } else {
+            goals.setUser(user);
+            return goalsRepository.save(goals);
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteItem(@PathVariable int id){
-        goalsRepository.deleteById(id);
+    @DeleteMapping("")
+    public void deleteItem(@PathVariable int userId){
+        Users user = usersRepository.findById(userId).orElse(null);
+        if (user == null) return;
+        Goals goals = user.getGoals();
+        if (goals != null) {
+            goalsRepository.delete(goals);
+        }
     }
 }

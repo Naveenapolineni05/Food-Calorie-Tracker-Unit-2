@@ -2,13 +2,14 @@ package com.example.foodcalorietracker.models;
 import jakarta.persistence.*;
 
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String email;
     private String password;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -19,7 +20,7 @@ public class Users {
     public Users() {
     }
 
-    public Users(String email, int id, String password) {
+    public Users(String email, Integer id, String password) {
         this.email = email;
         this.id = id;
         this.password = password;
@@ -33,11 +34,11 @@ public class Users {
         this.email = email;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -48,6 +49,20 @@ public class Users {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public Goals getGoals() {
+        return goals;
+    }
+
+    public void setGoals(Goals goals) {
+        this.goals = goals;
+    }
+
+    public List<Meals> getMeals() {
+        return meals;
+    }
+
+    public void setMeals(List<Meals> meals) {
+        this.meals = meals;
+    }
 }
-
-

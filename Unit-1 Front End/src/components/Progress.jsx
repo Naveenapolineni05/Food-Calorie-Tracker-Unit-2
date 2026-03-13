@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import CustomizedProgressBar from "./CustomizedProgressBar";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -6,29 +6,37 @@ import Button from '@mui/material/Button';
 import WeeklySummary from "./WeeklySummary";
 import Stack from "@mui/material/Stack";
 import { Link } from "react-router-dom";
+import { DataContext } from "../context/DataContext";
 
 
-function Progress(props) {
-    const {dataSet, goal, meal}= props;
+function Progress() {
+    const { dailyGoal, weeklyMeals, fetchWeeklyUserMeals } = useContext(DataContext);
 
-     const totalCalories = () => {
-        const breakfastCalories = Number(meal.breakfast) || 0;
-        const lunchCalories = Number(meal.lunch) || 0;
-        const snacksCalories = Number(meal.snacks) || 0;
-        const dinnerCalories = Number(meal.dinner) || 0;
-        return breakfastCalories + lunchCalories + snacksCalories + dinnerCalories;
+    useEffect(() => {
+        fetchWeeklyUserMeals();
+    }, []);
 
+    const weeklyGoal = dailyGoal ? dailyGoal * 7 : 0;
+
+    const totalWeeklyCalories = () => {
+        return weeklyMeals.reduce((total, day) => {
+            const breakfast = Number(day.breakfast) || 0;
+            const lunch = Number(day.lunch) || 0;
+            const snacks = Number(day.snacks) || 0;
+            const dinner = Number(day.dinner) || 0;
+            return total + breakfast + lunch + snacks + dinner;
+        }, 0);
     }
 
     return (
         <Stack spacing={2} alignItems="strech">
-            <h2>Daily Summary</h2>
+            <h2>Weekly Summary</h2>
             <Card sx={{ minWidth: 200 }} raised>
                 <CardContent>
-                    <CustomizedProgressBar goal={goal} dailyCalories={totalCalories()}/>
+                    <CustomizedProgressBar goal={weeklyGoal} caloriesConsumed={totalWeeklyCalories()}/>
                 </CardContent>
             </Card>
-            <WeeklySummary dataset={dataSet}/>
+            <WeeklySummary />
             <Stack spacing={2} direction="row">
                 <Button
                     component={Link}

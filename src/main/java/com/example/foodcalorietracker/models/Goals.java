@@ -1,4 +1,5 @@
 package com.example.foodcalorietracker.models;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -10,6 +11,7 @@ public class Goals {
     private int id;
     private int dailyGoal;
     private int weeklyGoal;
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;

@@ -1,22 +1,26 @@
 import TextField from "@mui/material/TextField";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Stack from "@mui/material/Stack";
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import { Link } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { DataContext } from "../context/DataContext";
 
 
 
 function AddEditMeal(props) {
-    const { mealTypes, setMeal, meal } = props;
+    const { mealTypes } = props;
+    const { fetchUserMealCaloriesForTheDay, fetchWeeklyUserMeals } = useContext(DataContext);
     const [date, setDate] = useState(dayjs());
     const [itemName, setItemName] = useState("");
     const [calories, setCalories] = useState("");
     const [mealType, setMealType] = useState(mealTypes[0]);
+    const [error, setError] = useState("");
 
     const handleitemNameChange = event => {
         setItemName(event.target.value);
@@ -30,39 +34,49 @@ function AddEditMeal(props) {
         setMealType(event.target.value);
     }
 
-    const updateMeal = () => {
+    const updateMeal = async () => {
+        const isoDate = date.format("YYYY-MM-DD");
         const day = date.format("ddd");
 
-        if (meal.day === day) {
+        const requestBody = {
+            name: itemName,
+            calories: Number(calories),
+            category: mealType,
+            date: isoDate
+        };
 
-            const updatedMeal = {
-                day,
-                breakfast: meal.breakfast,
-                lunch: meal.lunch,
-                snacks: meal.snacks,
-                dinner: meal.dinner,
-                [mealType.toLowerCase()]: Number(calories)
-            };
+        try {
+            const response = await fetch("http://localhost:8080/users/1/meals", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestBody)
+            });
 
-            setMeal(updatedMeal);
-        } else {
-            const updatedMeal = {
-                day,
-                breakfast: 0,
-                lunch: 0,
-                snacks: 0,
-                dinner: 0,
-                [mealType.toLowerCase()]: Number(calories)
-            };
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `ERROR - status ${response.status}`);
+            }
 
-            setMeal(updatedMeal);
+            setError("");
+            await fetchUserMealCaloriesForTheDay();
+            await fetchWeeklyUserMeals();
+        } catch (err) {
+            const message = err?.message || "Failed to save meal.";
+            setError(message);
+            console.error("Failed to save meal:", err);
         }
-
     }
 
     return (
 
-        <Stack spacing={2} alignItems="strech">
+        <Stack spacing={2} alignItems="stretch">
+            {error && (
+                <Typography color="error" variant="body2">
+                    {error}
+                </Typography>
+            )}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                     label="Select Date"
