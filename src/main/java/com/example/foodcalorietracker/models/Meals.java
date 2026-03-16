@@ -1,4 +1,5 @@
 package com.example.foodcalorietracker.models;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -7,11 +8,13 @@ import java.time.LocalDate;
 public class Meals {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String name;
     private int calories;
     private String category;
     private LocalDate date;
+    private boolean favorite;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
@@ -19,10 +22,11 @@ public class Meals {
     public Meals() {
     }
 
-    public Meals(String name, int calories, String category, LocalDate date) {
+    public Meals(String name, int calories, String category, boolean favorite, LocalDate date) {
         this.name = name;
         this.calories = calories;
         this.category = category;
+        this.favorite = favorite;
         this.date = date;
     }
 
@@ -50,11 +54,11 @@ public class Meals {
         this.date = date;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -64,5 +68,21 @@ public class Meals {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    public Users getUser() {
+        return user;
+    }
+
+    public void setUser(Users user) {
+        this.user = user;
     }
 }

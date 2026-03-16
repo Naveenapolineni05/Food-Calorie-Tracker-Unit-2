@@ -1,6 +1,10 @@
 package com.example.foodcalorietracker.controllers;
 import com.example.foodcalorietracker.models.Users;
 import com.example.foodcalorietracker.repositories.UsersRepository;
+import com.example.foodcalorietracker.dtos.LoginRequest;
+import com.example.foodcalorietracker.dtos.LoginResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,4 +43,17 @@ public class UsersController {
     public void deleteItem(@PathVariable int id){
         usersRepository.deleteById(id);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
+        var user = usersRepository.findByEmail(loginRequest.getEmail());
+        
+        if (user.isPresent() && user.get().getPassword().equals(loginRequest.getPassword())) {
+            return ResponseEntity.ok(new LoginResponse(user.get().getId(), "Login successful"));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new LoginResponse(null, "Invalid email or password"));
+        }
+    }
 }
+
