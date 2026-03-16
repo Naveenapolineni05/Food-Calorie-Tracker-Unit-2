@@ -14,15 +14,15 @@ public class Users {
     private String password;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Meals> meals;
+    @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Goals goals;
 
     public Users() {
     }
 
-    public Users(String email, Integer id, String password) {
+    public Users(String email, String password) {
         this.email = email;
-        this.id = id;
         this.password = password;
     }
 

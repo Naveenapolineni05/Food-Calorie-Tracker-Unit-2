@@ -18,7 +18,7 @@ import { DataContext } from "../context/DataContext";
 
 function AddEditMeal(props) {
     const { mealTypes } = props;
-    const { fetchUserMealCaloriesForTheDay, fetchWeeklyUserMeals } = useContext(DataContext);
+    const { fetchUserMealCaloriesForTheDay, fetchWeeklyUserMeals, userId } = useContext(DataContext);
     const [date, setDate] = useState(dayjs());
     const [itemName, setItemName] = useState("");
     const [calories, setCalories] = useState("");
@@ -51,7 +51,7 @@ function AddEditMeal(props) {
         };
 
         try {
-            const response = await fetch("http://localhost:8080/users/1/meals", {
+            const response = await fetch(`http://localhost:8080/users/${userId}/meals`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

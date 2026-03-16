@@ -18,12 +18,17 @@ export const DataProvider = ({ children }) => {
 
     const [mealDetails, setMealDetails] = useState([]);
 
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    const [userId, setUserId] = useState(null);
+
 
     const fetchDailyGoal = async () => {
+        if (!userId) return;
         let goal = 2500;
 
         try {
-            const response = await fetch("http://localhost:8080/users/1/goals");
+            const response = await fetch(`http://localhost:8080/users/${userId}/goals`);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -54,7 +59,7 @@ export const DataProvider = ({ children }) => {
         };
 
         try {
-            const response = await fetch("http://localhost:8080/users/1/goals", {
+            const response = await fetch(`http://localhost:8080/users/${userId}/goals`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -75,11 +80,11 @@ export const DataProvider = ({ children }) => {
     }
 
     const fetchUserMealCaloriesForTheDay = async () => {
-        console.log("fetchUserMealCaloriesForTheDay called");
+        if (!userId) return;
         let mealData = {};
 
         try {
-            const response = await fetch("http://localhost:8080/users/1");
+            const response = await fetch(`http://localhost:8080/users/${userId}`);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -118,11 +123,11 @@ export const DataProvider = ({ children }) => {
     }
 
     const fetchWeeklyUserMeals = async () => {
-        console.log("fetchWeeklyUserMeals called");
+        if (!userId) return;
         let weeklyData = [];
 
         try {
-            const response = await fetch("http://localhost:8080/users/1");
+            const response = await fetch(`http://localhost:8080/users/${userId}`);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -147,7 +152,7 @@ export const DataProvider = ({ children }) => {
 
                 weeklyMealsFiltered.forEach(meal => {
                     const mealDate = dayjs(meal.date);
-                    const dayName = mealDate.format('ddd'); // e.g., 'Mon'
+                    const dayName = mealDate.format('ddd');
                     if (!dayMap[dayName]) {
                         dayMap[dayName] = { breakfast: 0, lunch: 0, snacks: 0, dinner: 0 };
                     }
@@ -176,11 +181,11 @@ export const DataProvider = ({ children }) => {
     }
 
     const fetchMealDetails = async () => {
-        console.log("fetchMealDetails called");
+        if (!userId) return;
         let details = [];
 
         try {
-            const response = await fetch("http://localhost:8080/users/1/meals");
+            const response = await fetch(`http://localhost:8080/users/${userId}/meals`);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -188,10 +193,8 @@ export const DataProvider = ({ children }) => {
             } else {
                 const meals = await response.json();
 
-                // Get today's date
                 const today = new Date().toISOString().split('T')[0];
 
-                // Filter meals for today
                 const todaysMeals = meals.filter(meal => meal.date === today);
 
                 // Group by category
@@ -238,13 +241,58 @@ export const DataProvider = ({ children }) => {
         }
     }
 
+    const login = async (email, password) => {
+        try {
+            const response = await fetch("http://localhost:8080/users/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Login failed");
+            }
+
+            const data = await response.json();
+            if (data.userId) {
+                setUserId(data.userId);
+                setIsLoggedIn(true);
+                // Load user data after login
+                await fetchDailyGoal();
+                await fetchUserMealCaloriesForTheDay();
+                await fetchWeeklyUserMeals();
+                return { success: true };
+            } else {
+                throw new Error("Invalid credentials");
+            }
+        } catch (error) {
+            console.error("Login error:", error.message);
+            return { success: false, error: error.message };
+        }
+    };
+
+    const logout = () => {
+        setIsLoggedIn(false);
+        setUserId(null);
+        setDailyGoal(null);
+        setMeal({});
+        setWeeklyMeals([]);
+        setMealDetails([]);
+    }
+
 
 
     useEffect(() => {
-        fetchDailyGoal();
-        fetchUserMealCaloriesForTheDay();
-        fetchWeeklyUserMeals();
-    }, [])
+        // Only load data if user is logged in
+        if (isLoggedIn && userId) {
+            fetchDailyGoal();
+            fetchUserMealCaloriesForTheDay();
+            fetchWeeklyUserMeals();
+        }
+    }, [isLoggedIn, userId])
 
     useEffect(() => {
         setIsLoading(false);
@@ -252,7 +300,7 @@ export const DataProvider = ({ children }) => {
 
     return (
         <DataContext.Provider
-        value={{isLoading, dailyGoal, meal, weeklyMeals, mealDetails, fetchDailyGoal, updateGoals, fetchUserMealCaloriesForTheDay, fetchWeeklyUserMeals, fetchMealDetails, deleteMeal}}>
+        value={{isLoading, dailyGoal, meal, weeklyMeals, mealDetails, fetchDailyGoal, updateGoals, fetchUserMealCaloriesForTheDay, fetchWeeklyUserMeals, fetchMealDetails, deleteMeal, login, logout, isLoggedIn, userId}}>
 
             {children}
 

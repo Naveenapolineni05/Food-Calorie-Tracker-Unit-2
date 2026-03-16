@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import NavBar from "./NavBar";
+import { DataContext } from "../context/DataContext";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -16,9 +17,12 @@ function Favorites() {
     const [error, setError] = useState("");
     const [addingMeal, setAddingMeal] = useState(null);
 
+    const { userId, fetchUserMealCaloriesForTheDay, fetchWeeklyUserMeals } = useContext(DataContext);
+
     const fetchFavoriteMeals = async () => {
+        if (!userId) return;
         try {
-            const response = await fetch("http://localhost:8080/users/1/meals");
+            const response = await fetch(`http://localhost:8080/users/${userId}/meals`);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -50,7 +54,7 @@ function Favorites() {
         };
 
         try {
-            const response = await fetch("http://localhost:8080/users/1/meals", {
+            const response = await fetch(`http://localhost:8080/users/${userId}/meals`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -65,6 +69,8 @@ function Favorites() {
 
             // Refresh favorite meals
             await fetchFavoriteMeals();
+            await fetchUserMealCaloriesForTheDay();
+            await fetchWeeklyUserMeals();
             alert(`${meal.name} added to today's meals!`);
         } catch (err) {
             const message = err?.message || "Failed to add meal to today's meals.";
