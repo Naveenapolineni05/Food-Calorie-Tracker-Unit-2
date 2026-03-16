@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+import NavBar from "./NavBar";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Button from '@mui/material/Button';
@@ -36,6 +37,7 @@ function Settings() {
 
     return (
         <Stack spacing={2} alignItems="strech">
+            <NavBar />
             {error && (
                 <div style={{ color: 'red' }}>
                     {error}

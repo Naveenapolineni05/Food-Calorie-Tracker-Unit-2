@@ -13,6 +13,7 @@ public class Meals {
     private int calories;
     private String category;
     private LocalDate date;
+    private boolean favorite;
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -21,10 +22,11 @@ public class Meals {
     public Meals() {
     }
 
-    public Meals(String name, int calories, String category, LocalDate date) {
+    public Meals(String name, int calories, String category, boolean favorite, LocalDate date) {
         this.name = name;
         this.calories = calories;
         this.category = category;
+        this.favorite = favorite;
         this.date = date;
     }
 
@@ -66,6 +68,14 @@ public class Meals {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 
     public Users getUser() {

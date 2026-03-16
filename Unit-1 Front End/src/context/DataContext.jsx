@@ -16,6 +16,8 @@ export const DataProvider = ({ children }) => {
 
     const [weeklyMeals, setWeeklyMeals] = useState([]);
 
+    const [mealDetails, setMealDetails] = useState([]);
+
 
     const fetchDailyGoal = async () => {
         let goal = 2500;
@@ -173,6 +175,69 @@ export const DataProvider = ({ children }) => {
 
     }
 
+    const fetchMealDetails = async () => {
+        console.log("fetchMealDetails called");
+        let details = [];
+
+        try {
+            const response = await fetch("http://localhost:8080/users/1/meals");
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `ERROR - status ${response.status}`);
+            } else {
+                const meals = await response.json();
+
+                // Get today's date
+                const today = new Date().toISOString().split('T')[0];
+
+                // Filter meals for today
+                const todaysMeals = meals.filter(meal => meal.date === today);
+
+                // Group by category
+                const categoryMap = {};
+                todaysMeals.forEach(meal => {
+                    const category = meal.category;
+                    if (!categoryMap[category]) {
+                        categoryMap[category] = [];
+                    }
+                    categoryMap[category].push({ id: meal.id, name: meal.name, calories: meal.calories });
+                });
+
+                // Transform to desired structure
+                details = Object.keys(categoryMap).map(category => ({
+                    Category: category,
+                    Items: categoryMap[category]
+                }));
+            }
+
+        } catch (error) {
+            console.error(error.message);
+        } finally {
+            setMealDetails(details);
+        }
+    }
+
+    const deleteMeal = async (mealId) => {
+        try {
+            const response = await fetch(`http://localhost:8080/users/1/meals/${mealId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `ERROR - status ${response.status}`);
+            }
+
+            // Refresh meal details after deletion
+            await fetchMealDetails();
+            await fetchUserMealCaloriesForTheDay();
+
+        } catch (error) {
+            console.error("Error deleting meal:", error.message);
+        }
+    }
+
 
 
     useEffect(() => {
@@ -187,7 +252,7 @@ export const DataProvider = ({ children }) => {
 
     return (
         <DataContext.Provider
-        value={{isLoading, dailyGoal, meal, weeklyMeals, fetchDailyGoal, updateGoals, fetchUserMealCaloriesForTheDay, fetchWeeklyUserMeals}}>
+        value={{isLoading, dailyGoal, meal, weeklyMeals, mealDetails, fetchDailyGoal, updateGoals, fetchUserMealCaloriesForTheDay, fetchWeeklyUserMeals, fetchMealDetails, deleteMeal}}>
 
             {children}
 

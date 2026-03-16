@@ -1,9 +1,12 @@
 import TextField from "@mui/material/TextField";
 import React, { useState, useContext } from "react";
+import NavBar from "./NavBar";
 import Stack from "@mui/material/Stack";
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { Link } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -20,6 +23,7 @@ function AddEditMeal(props) {
     const [itemName, setItemName] = useState("");
     const [calories, setCalories] = useState("");
     const [mealType, setMealType] = useState(mealTypes[0]);
+    const [isFavorite, setIsFavorite] = useState(false);
     const [error, setError] = useState("");
 
     const handleitemNameChange = event => {
@@ -42,7 +46,8 @@ function AddEditMeal(props) {
             name: itemName,
             calories: Number(calories),
             category: mealType,
-            date: isoDate
+            date: isoDate,
+            favorite: isFavorite
         };
 
         try {
@@ -72,6 +77,7 @@ function AddEditMeal(props) {
     return (
 
         <Stack spacing={2} alignItems="stretch">
+            <NavBar />
             {error && (
                 <Typography color="error" variant="body2">
                     {error}
@@ -121,6 +127,17 @@ function AddEditMeal(props) {
                 type="Number"
                 value={calories}
                 onChange={handleCaloriesChange}
+            />
+
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        checked={isFavorite}
+                        onChange={(event) => setIsFavorite(event.target.checked)}
+                        color="primary"
+                    />
+                }
+                label="Add to favorites"
             />
 
             <Stack spacing={2} direction="row">

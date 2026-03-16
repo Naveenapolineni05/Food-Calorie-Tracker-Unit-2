@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from "react";
+import NavBar from "./NavBar";
 import CustomizedProgressBar from "./CustomizedProgressBar";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -30,6 +31,7 @@ function Progress() {
 
     return (
         <Stack spacing={2} alignItems="strech">
+            <NavBar />
             <h2>Weekly Summary</h2>
             <Card sx={{ minWidth: 200 }} raised>
                 <CardContent>
